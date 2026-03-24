@@ -1,9 +1,7 @@
 package com.manager.minerai.security;
 
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +36,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
 
             final String token = authHeader.substring(7);
-            if (jwtUtil.isTokenValid(token)) {
+            if (!jwtUtil.isTokenValid(token)) {
                 filterChain.doFilter(request, response);
                 return;
             }
