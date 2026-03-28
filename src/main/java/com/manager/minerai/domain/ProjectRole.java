@@ -3,12 +3,12 @@ package com.manager.minerai.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "project_roles")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -26,5 +26,15 @@ public class ProjectRole {
     private Project project;
 
     @OneToMany(mappedBy = "projectRole", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Permission> permissions;
+    @Builder.Default
+    private List<Permission> permissions = new ArrayList<>();
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void updatePermissions(List<Permission> newPermissions) {
+        this.permissions.clear();
+        this.permissions.addAll(newPermissions);
+    }
 }
