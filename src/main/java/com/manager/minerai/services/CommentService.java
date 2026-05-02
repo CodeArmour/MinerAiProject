@@ -12,7 +12,13 @@ import com.manager.minerai.exception.ResourceNotFoundException;
 import com.manager.minerai.repository.CommentRepository;
 import com.manager.minerai.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import com.manager.minerai.dto.response.PageResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -96,6 +102,32 @@ public class CommentService {
         }
 
         return comment;
+    }
+
+    public PageResponse<CommentResponse> getTaskCommentsPaginated(String projectId,
+                                                                  String taskId,
+                                                                  int page,
+                                                                  int size) {
+        permissionService.checkPermission(projectId, PermissionType.UPDATE_STATUS);
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        if (!task.getProject().getId().equals(projectId)) {
+            throw new ForbiddenException("Task does not belong to this project");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
+        Page<Comment> commentPage = commentRepository.findByTaskId(taskId, pageable);
+
+        return PageResponse.<CommentResponse>builder()
+                .content(commentPage.getContent().stream().map(this::mapToResponse).toList())
+                .pageNumber(commentPage.getNumber())
+                .pageSize(commentPage.getSize())
+                .totalElements(commentPage.getTotalElements())
+                .totalPages(commentPage.getTotalPages())
+                .last(commentPage.isLast())
+                .build();
     }
 
     private CommentResponse mapToResponse(Comment comment) {

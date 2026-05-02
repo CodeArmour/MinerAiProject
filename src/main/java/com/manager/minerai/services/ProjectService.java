@@ -5,7 +5,9 @@ import com.manager.minerai.domain.Project;
 import com.manager.minerai.domain.User;
 import com.manager.minerai.dto.request.project.CreateProjectRequest;
 import com.manager.minerai.dto.request.project.UpdateProjectRequest;
+import com.manager.minerai.dto.response.LabelResponse;
 import com.manager.minerai.dto.response.ProjectResponse;
+import com.manager.minerai.dto.response.UserResponse;
 import com.manager.minerai.exception.ForbiddenException;
 import com.manager.minerai.exception.ResourceNotFoundException;
 import com.manager.minerai.repository.ProjectRepository;
@@ -89,9 +91,25 @@ public class ProjectService {
                 .id(project.getId())
                 .name(project.getName())
                 .description(project.getDescription())
-                .ownerId(project.getOwner().getId())
-                .ownerName(project.getOwner().getFullName())
+                .owner(UserResponse.builder()
+                        .id(project.getOwner().getId())
+                        .fullName(project.getOwner().getFullName())
+                        .email(project.getOwner().getEmail())
+                        .createdAt(project.getOwner().getCreatedAt())
+                        .build())
+                .labels(project.getLabels() != null ? project.getLabels().stream()
+                        .map(label -> LabelResponse.builder()
+                                .id(label.getId())
+                                .name(label.getName())
+                                .color(label.getColor())
+                                .type(label.getType())
+                                .projectId(project.getId())
+                                .createdAt(label.getCreatedAt())
+                                .updatedAt(label.getUpdatedAt())
+                                .build())
+                        .toList() : List.of())
                 .createdAt(project.getCreatedAt())
+                .updatedAt(null)
                 .build();
     }
 }

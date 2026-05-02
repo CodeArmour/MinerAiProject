@@ -1,9 +1,12 @@
 package com.manager.minerai.controllers;
 
 import com.manager.minerai.dto.request.task.CreateTaskRequest;
+import com.manager.minerai.dto.request.task.UpdatePriorityRequest;
 import com.manager.minerai.dto.request.task.UpdateStatusRequest;
 import com.manager.minerai.dto.request.task.UpdateTaskRequest;
+import com.manager.minerai.dto.response.PageResponse;
 import com.manager.minerai.dto.response.TaskResponse;
+import com.manager.minerai.enums.TaskStatus;
 import com.manager.minerai.services.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +41,25 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTaskById(projectId, taskId));
     }
 
+    @GetMapping("/paginated")
+    public ResponseEntity<PageResponse<TaskResponse>> getProjectTasksPaginated(
+            @PathVariable String projectId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(taskService.getProjectTasksPaginated(projectId, page, size));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<PageResponse<TaskResponse>> searchTasks(
+            @PathVariable String projectId,
+            @RequestParam(required = false) TaskStatus status,
+            @RequestParam(required = false) String assigneeId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(taskService.searchTasks(projectId, status, assigneeId, keyword, page, size));
+    }
+
     @PutMapping("/{taskId}")
     public ResponseEntity<TaskResponse> updateTask(@PathVariable String projectId,
                                                     @PathVariable String taskId,
@@ -50,6 +72,13 @@ public class TaskController {
                                                       @PathVariable String taskId,
                                                       @Valid @RequestBody UpdateStatusRequest request) {
         return ResponseEntity.ok(taskService.updateStatus(projectId, taskId, request));
+    }
+
+    @PatchMapping("/{taskId}/priority")
+    public ResponseEntity<TaskResponse> updatePriority(@PathVariable String projectId,
+                                                       @PathVariable String taskId,
+                                                       @Valid @RequestBody UpdatePriorityRequest request) {
+        return ResponseEntity.ok(taskService.updatePriority(projectId, taskId, request));
     }
 
     @DeleteMapping("/{taskId}")

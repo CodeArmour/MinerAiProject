@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, String> {
     List<Project> findByOwnerId(String ownerId);
+    long countByOwnerId(String ownerId);
 }

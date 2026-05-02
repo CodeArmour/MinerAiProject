@@ -7,6 +7,7 @@ public enum PermissionType {
     ASSIGN_TASK,
     UPDATE_TASK,
     UPDATE_STATUS,
+    UPDATE_PRIORITY,
 
     // Member permissions
     ADD_MEMBER,
